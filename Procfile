@@ -1,0 +1,1 @@
+web: java -jar build/libs/KINOMAN-v0.21.jar
