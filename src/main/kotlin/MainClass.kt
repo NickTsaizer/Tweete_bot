@@ -60,7 +60,7 @@ class MainListener : ListenerAdapter() {
         if (event.isFromType(ChannelType.TEXT))
             when {
                 event.reactionEmote.name == "film_frames1" && checkUsers(event.reaction.users)-> {
-                    addToList()
+                    addToList(message.contentDisplay)
                     println("${author.name}, фильм добавлен: ${message.contentDisplay}")
                     message.addReaction(event.reactionEmote.emote).queue()
                     println(event.reactionEmote.emote)
