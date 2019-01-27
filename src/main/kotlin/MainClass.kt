@@ -1,45 +1,36 @@
+import com.xenomachina.argparser.ArgParser
 import net.dv8tion.jda.core.JDABuilder
 import net.dv8tion.jda.core.entities.*
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import net.dv8tion.jda.core.events.message.MessageUpdateEvent
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
+import net.dv8tion.jda.core.requests.restaction.pagination.ReactionPaginationAction
 import javax.security.auth.login.LoginException
 
-val chanel = "тестирование"
-val emoji = "twitter"
-val emote = "E:504627592213561354"
+val emote = "E:532807314168610866"
+var movielist = mutableListOf<String>()
 
-
-val messageList = listOf<message>()
-data class message(
-        val discordMessageID:String,
-        val tweetID: Long? = null)
-fun addToList(discordMessageID: String) {
-
+fun addToList(movie:String) {
+    if (!movielist.contains(movie)) movielist.add(movie)
 }
 
 class MainListener : ListenerAdapter() {
     override fun onMessageReceived(event: MessageReceivedEvent?) {
         val author = event!!.author
-        val ID = event.messageId
         val message = event.message
-        val channel = event.channel
         val msg = message.contentDisplay
         val bot = author.isBot
-        if (event.isFromType(ChannelType.TEXT) && !bot && channel.name==chanel)
+        if (event.isFromType(ChannelType.TEXT) && !bot)
         when {
-            msg == "!ping" -> {
-                channel.sendMessage("pong!").queue()
-            }
-            msg.endsWith(":twitter:") -> {
-                addToList(ID)
-                println("${author.name} tweeted: $msg")
+            msg.endsWith(":film_frames1:") -> {
+                addToList(msg.dropWhile { it != ' ' })
+                println("${author.name}, фильм добавлен:${msg.dropWhile { it != ' ' }}")
                 message.addReaction(emote).queue()
             }
-            msg.startsWith("@Twitte") -> {
-                addToList(ID)
-                println("${author.name} tweeted: $msg")
+            msg.startsWith("@КИНМАН") -> {
+                addToList(msg.dropWhile { it != ' ' })
+                println("${author.name}, фильм добавлен:${msg.dropWhile { it != ' ' }}")
                 message.addReaction(emote).queue()
             }
         }
@@ -47,14 +38,16 @@ class MainListener : ListenerAdapter() {
     override fun onMessageUpdate(event: MessageUpdateEvent?) {
         val author = event!!.author
         val message = event.message
-        val channel = event.channel
         val msg = message.contentDisplay
         val bot = author.isBot
-        if (event.isFromType(ChannelType.TEXT) && !bot && channel.name == chanel)
+        if (event.isFromType(ChannelType.TEXT) && !bot)
             when {
-                msg.endsWith(":twitter:") -> {
-                    println("${author.name} tweeted: $msg")
-                    message.addReaction(emote).queue()
+                msg.endsWith(":film_frames1:") -> {
+                    if (!msg.startsWith("@КИНМАН")) {
+                        addToList(msg.dropLast(14))
+                        println("${author.name}, фильм добавлен: ${msg.dropLast(14)}")
+                        message.addReaction(emote).queue()
+                    }
                 }
             }
     }
@@ -64,27 +57,27 @@ class MainListener : ListenerAdapter() {
         val channel = event.channel
         val message = channel.getMessageById(ID).complete()
         val author = message.author
-        if (event.isFromType(ChannelType.TEXT) && channel.name == chanel)
+        if (event.isFromType(ChannelType.TEXT))
             when {
-                event.reactionEmote.name == "twitter" -> {
-                    event.reaction.users.forEach {
-                        if (!it.isBot) {
-                            println("${author.name} tweeted: $message")
-                            message.addReaction(emote).queue()
-                        }
-                    }
+                event.reactionEmote.name == "film_frames1" && checkUsers(event.reaction.users)-> {
+                    addToList()
+                    println("${author.name}, фильм добавлен: ${message.contentDisplay}")
+                    message.addReaction(event.reactionEmote.emote).queue()
+                    println(event.reactionEmote.emote)
                 }
             }
     }
-
+//  https://discordapp.com/api/oauth2/authorize?client_id=538944501134131208&scope=bot&permissions=268643392
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
+            val parser = ArgParser(args).parseInto(::Args)
             try {
                 val jda =
-                        JDABuilder("NTA0NjQ4Mjk5ODIzODkwNDM1.DrLycg.AvmJ0gOZDQGKeQ_QHUJKs99x5zM")
+                        JDABuilder(parser.token)
                                 .addEventListener(MainListener())
                                 .build()
+                println("Token "+parser.token+" accepted.")
                 jda.awaitReady()
 
                 println("Finished Building JDA!")
@@ -95,4 +88,16 @@ class MainListener : ListenerAdapter() {
             }
         }
     }
+}
+
+class Args(parser: ArgParser) {
+    val token by parser.storing("-t", "--token",
+            help = "server token")
+}
+
+fun checkUsers(users:ReactionPaginationAction) : Boolean {
+    users.forEach {
+        if (it.isBot) return false
+    }
+    return true
 }
