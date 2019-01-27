@@ -36,6 +36,6 @@ mainClassName = 'MainListener'
 version = '1'
 sourceCompatibility = 1.8
 
-task stage(dependsOn: ['build', 'clean', 'run'])
+task stage(dependsOn: ['build', 'clean'])
 build.mustRunAfter clean
 
