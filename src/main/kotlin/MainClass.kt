@@ -7,9 +7,11 @@ import net.dv8tion.jda.core.events.message.MessageUpdateEvent
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent
 import net.dv8tion.jda.core.hooks.ListenerAdapter
 import net.dv8tion.jda.core.requests.restaction.pagination.ReactionPaginationAction
+import java.util.*
 import javax.security.auth.login.LoginException
 
-val emote = "E:532807314168610866"
+val emote = System.getenv("EMOTE")
+val emotename = System.getenv("EMOTE_NAME")
 var movielist = mutableListOf<String>()
 
 fun addToList(movie:String) {
@@ -19,38 +21,22 @@ fun addToList(movie:String) {
 class MainListener : ListenerAdapter() {
     override fun onMessageReceived(event: MessageReceivedEvent?) {
         val author = event!!.author
+        val channel = event.channel
         val message = event.message
         val msg = message.contentDisplay
         val bot = author.isBot
         if (event.isFromType(ChannelType.TEXT) && !bot)
         when {
-            msg.endsWith(":film_frames1:") -> {
-                addToList(msg.dropWhile { it != ' ' })
-                println("${author.name}, фильм добавлен:${msg.dropWhile { it != ' ' }}")
+            msg.endsWith(":$emotename:") -> {
+                addToList(msg.dropLast(emotename.length+2))
+                movielist.forEach { println(it) }
+                println("${author.name}, фильм добавлен:${msg.dropLast(emotename.length+2)}")
                 message.addReaction(emote).queue()
             }
             msg.startsWith("@КИНМАН") -> {
-                addToList(msg.dropWhile { it != ' ' })
-                println("${author.name}, фильм добавлен:${msg.dropWhile { it != ' ' }}")
-                message.addReaction(emote).queue()
+                channel.sendMessage(movielist[Random().nextInt(movielist.lastIndex)])
             }
         }
-    }
-    override fun onMessageUpdate(event: MessageUpdateEvent?) {
-        val author = event!!.author
-        val message = event.message
-        val msg = message.contentDisplay
-        val bot = author.isBot
-        if (event.isFromType(ChannelType.TEXT) && !bot)
-            when {
-                msg.endsWith(":film_frames1:") -> {
-                    if (!msg.startsWith("@КИНМАН")) {
-                        addToList(msg.dropLast(14))
-                        println("${author.name}, фильм добавлен: ${msg.dropLast(14)}")
-                        message.addReaction(emote).queue()
-                    }
-                }
-            }
     }
 
     override fun onMessageReactionAdd(event: MessageReactionAddEvent?) {
@@ -60,7 +46,7 @@ class MainListener : ListenerAdapter() {
         val author = message.author
         if (event.isFromType(ChannelType.TEXT))
             when {
-                event.reactionEmote.name == "film_frames1" && checkUsers(event.reaction.users)-> {
+                event.reactionEmote.name == emotename && checkUsers(event.reaction.users)-> {
                     addToList(message.contentDisplay)
                     println("${author.name}, фильм добавлен: ${message.contentDisplay}")
                     message.addReaction(event.reactionEmote.emote).queue()
