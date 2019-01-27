@@ -31,6 +31,17 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
+apply plugin:'application'
+mainClassName = 'MainListener'
+version = '1'
+sourceCompatibility = 1.8
 
-task stage(dependsOn: ['build', 'clean'])
+task stage(dependsOn: ['build', 'clean', 'run'])
 build.mustRunAfter clean
+
+TOKEN = System.getenv('TOKEN')
+
+run {
+    args = ["-t", TOKEN]
+}
+

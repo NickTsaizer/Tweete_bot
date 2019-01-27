@@ -74,7 +74,7 @@ class MainListener : ListenerAdapter() {
             val parser = ArgParser(args).parseInto(::Args)
             try {
                 val jda =
-                        JDABuilder(parser.token)
+                        JDABuilder()
                                 .addEventListener(MainListener())
                                 .build()
                 println("Token "+parser.token+" accepted.")
