@@ -76,7 +76,7 @@ class MainListener : ListenerAdapter() {
             println("Token is "+parser.token)
             try {
                 val jda =
-                        JDABuilder()
+                        JDABuilder(parser.token)
                                 .addEventListener(MainListener())
                                 .build()
                 println("Token accepted.")
