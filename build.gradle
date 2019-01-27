@@ -39,9 +39,3 @@ sourceCompatibility = 1.8
 task stage(dependsOn: ['build', 'clean', 'run'])
 build.mustRunAfter clean
 
-TOKEN = System.getenv('TOKEN')
-
-run {
-    args = ["-t", TOKEN]
-}
-

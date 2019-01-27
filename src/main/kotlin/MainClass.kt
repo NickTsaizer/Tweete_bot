@@ -1,4 +1,5 @@
 import com.xenomachina.argparser.ArgParser
+import com.xenomachina.argparser.default
 import net.dv8tion.jda.core.JDABuilder
 import net.dv8tion.jda.core.entities.*
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
@@ -72,12 +73,13 @@ class MainListener : ListenerAdapter() {
         @JvmStatic
         fun main(args: Array<String>) {
             val parser = ArgParser(args).parseInto(::Args)
+            println("Token is "+parser.token)
             try {
                 val jda =
                         JDABuilder()
                                 .addEventListener(MainListener())
                                 .build()
-                println("Token "+parser.token+" accepted.")
+                println("Token accepted.")
                 jda.awaitReady()
 
                 println("Finished Building JDA!")
@@ -92,7 +94,7 @@ class MainListener : ListenerAdapter() {
 
 class Args(parser: ArgParser) {
     val token by parser.storing("-t", "--token",
-            help = "server token")
+            help = "server token").default { System.getenv("TOKEN") }
 }
 
 fun checkUsers(users:ReactionPaginationAction) : Boolean {
