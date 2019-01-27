@@ -9,7 +9,7 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter
 import net.dv8tion.jda.core.requests.restaction.pagination.ReactionPaginationAction
 import java.util.*
 import javax.security.auth.login.LoginException
-
+val random = Random()
 val emote = System.getenv("EMOTE")
 val emotename = System.getenv("EMOTE_NAME")
 var movielist = mutableListOf<String>()
@@ -34,7 +34,7 @@ class MainListener : ListenerAdapter() {
                 message.addReaction(emote).queue()
             }
             msg.startsWith("@КИНМАН") -> {
-                val movie = movielist[Random().nextInt(movielist.lastIndex)]
+                val movie = movielist[random.nextInt(movielist.lastIndex)]
                 println(movie)
                 channel.sendMessage(movie)
             }
