@@ -34,7 +34,9 @@ class MainListener : ListenerAdapter() {
                 message.addReaction(emote).queue()
             }
             msg.startsWith("@КИНМАН") -> {
-                channel.sendMessage(movielist[Random().nextInt(movielist.lastIndex)])
+                val movie = movielist[Random().nextInt(movielist.lastIndex)]
+                println(movie)
+                channel.sendMessage(movie)
             }
         }
     }
